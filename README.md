@@ -1,5 +1,12 @@
 # gardening-google-trends
-*Small project to practice using R and Datawrapper. In progress - more vis TBA!*
+*Small project to practice using R and Datawrapper.*
+
+## Stand-alone R visualisation
+
+<img src="plots/R_gardening_COVID.png" width = 900> 
+
+## Write-up and Datawrapper visualisations
+*In progress - more vis TBA!*
 
 With the weather warming up in Newcastle upon Tyne, I’ve been spending more time in our new garden. As a novice gardener, I’ve also been doing more research online, Googling how and when to plant my various vegetable and flower seeds. These searches led me to wonder how other gardeners use Google. Do their searches also vary over the course of the year?
 
