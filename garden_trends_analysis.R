@@ -1,10 +1,13 @@
 # libraries -----
-
+#if (length(dev.list()) > 0) {dev.off()}
 rm(list = ls())
 
 library(tidyverse)
 library(ggthemes)
 library(ggtext)
+library(ragg)
+library(systemfonts)
+library(textshaping)
 
 # load and tidy garden interest data ----
 
@@ -53,7 +56,7 @@ ggplot(garden_data,
    theme_bw() +
    theme(legend.position = 'none')
 
-# pivot wider for datawrapper version -----
+# pivot wider for datawrapper version ----
 
 month_names = c('Jan', 'Feb', 'March',
                 'April', 'May', 'June',
@@ -68,7 +71,7 @@ show(garden_data_dw)
 
 write_csv(garden_data_dw,file.path('data','garden_data_dw.csv'))
 
-# ------ Grow vegetables/flowers/food trends ------
+# ------ Grow vegetables/flowers/food trends ----
 
 # load and tidy data
 
@@ -102,7 +105,7 @@ grow_data_tidy <- grow_data |>
 
 show(grow_data_tidy)
 
-# plot interest (grow vegetables,  grow flowers, and grow food) vs time ----
+# plot interest (grow vegetables,  grow flowers, and grow food) vs time ---
 # (rough plots, initial exploration) 
 
 # search terms and corresponding colours
@@ -117,10 +120,16 @@ ggplot(grow_data_tidy,
   geom_line(linewidth = 0.75) +
   facet_grid(rows = vars(search)) +
   scale_colour_manual(values = search_pal) +
-  theme_tufte() + 
+  theme(
+    panel.grid = element_blank(),
+    panel.border = element_blank(),
+    axis.line = element_blank(),
+    panel.background = element_blank()
+    ) + 
   annotate("segment", x = -Inf, xend = Inf, y = 0, yend = 0,
            color = 'grey80', linewidth = 0.5, linetype = 3) +
   scale_x_continuous(
+    limits = c(0, 100), 
     breaks = seq(6, max(grow_data_tidy$months_elapsed), by = 12),
     labels = unique(grow_data_tidy$year)
     ) + 
@@ -138,7 +147,6 @@ ggplot(grow_data_tidy,
     ) +
   xlab('')
 
-################################################################################
 # main visualisation!  ----
 # plot interest (grow vegetables,  grow flowers, and grow food) vs time
 # finalised labelled and annotated plot
@@ -165,7 +173,35 @@ month_lockdown <- which(
 )
 step_lockdown <- 0.15
 x_lockdown <- seq(month_lockdown - step_lockdown, month_lockdown + step_lockdown, by = step_lockdown)
-y_start <- -25
+y_start <- -35
+
+# fonts
+
+# registered fonts with numbers = lining
+
+serif_font <- 'aleg_lining'
+register_font(
+  name = serif_font,
+  plain = '/Users/gmschroe/Library/Fonts/Alegreya-Medium.ttf',
+  bold = '/Users/gmschroe/Library/Fonts/Alegreya-Bold.ttf',
+  italic = '/Users/gmschroe/Library/Fonts/Alegreya-Italic.ttf',
+  features = font_feature(numbers = "lining")
+)
+
+sans_font <- 'aleg_sans_lining'
+register_font(
+  name = sans_font,
+  plain = '/Users/gmschroe/Library/Fonts/AlegreyaSans-Regular.ttf',
+  bold = '/Users/gmschroe/Library/Fonts/AlegreyaSans-Bold.ttf',
+  italic = '/Users/gmschroe/Library/Fonts/AlegreyaSans-Italic.ttf',
+  features = font_feature(numbers = "lining")
+)
+
+# alternative, use non-registered fonts - can use with dev.new
+# these differ from the above in that the numbers will have different vertical positions
+
+#serif_font <- 'Alegreya'
+#sans_font <- 'Alegreya Sans'
 
 # set colours (not all used)
 clr_grey1 <- '#1b160f'
@@ -187,8 +223,13 @@ clr_background <- '#FCF8EB' ##f7f2e3' # '#FFFCF5'
 search_pal <- c(clr_green4, clr_pink, clr_orange) # search term colours
 
 # lineplot 
-if (length(dev.list()) > 0) {dev.off()}
-dev.new(width = 7, height = 5, unit = 'in', noRStudioGD = TRUE)
+
+# uncomment dev to see figure with correct proportions in the R Studio session
+# however, does not work with registered fonts (which need AGG graphs device)
+
+#if (length(dev.list()) > 0) {dev.off()}
+#dev.new(width = 7, height = 5, unit = 'in', noRStudioGD = TRUE)
+
 ggplot(grow_data_tidy, 
        aes(x = months_elapsed, y = y, group = search, colour = search)
 ) +
@@ -196,40 +237,16 @@ ggplot(grow_data_tidy,
   geom_line(linewidth = 0.75) + 
   scale_colour_manual(values = search_pal) + 
   
-  # theme changes
-  theme_tufte() + # removes some unwanted elements (e.g., grid lines)
-  theme(text = element_text(family = '', color = clr_grey1), # colours
-        axis.text = element_text(color = clr_taupe3)
-        ) +
-  
-  # annotation: first lockdown
-  annotate("segment",
-           x = rep(x_lockdown, n_search),
-           xend = rep(x_lockdown, n_search),
-           y = rep(seq(2, n_search * y_step, y_step), each = length(x_lockdown)), 
-           yend = rep(seq(y_step - 4, n_search * y_step, y_step), each = length(x_lockdown)),
-           color = clr_grey1, linewidth = 0.2, linetype = 5, alpha = 0.5) + 
-  geom_textbox(
-    data = tibble(
-      x = month_lockdown - 1, 
-      y = (n_search) * y_step - 40,
-      label = paste0('<span style = "color:', clr_grey2, '; font-size:8pt;">',
-                     '<b>March 2020</b><br>First UK lockdown sees',
-                     ' spike in gardening searches </span>'),
-      ), 
-    mapping = aes(x = x, y = y, label = label),
-    inherit.aes = FALSE,
-    box.colour = NA, fill = NA,     
-    width = unit(1, 'inch'),
-    box.padding = unit(rep(0, 4), 'pt'),
-    hjust = 1, lineheight = 0.95) + 
+  # theme changes - remove grid lines, border, axis lines, background
+  # set axis text colour
+  theme(
+    panel.grid = element_blank(),
+    panel.border = element_blank(),
+    axis.line = element_blank(),
+    panel.background = element_blank()
+    ) +
   
   # x axis/baseline for each segment
-  
-  # annotate("segment",
-  #          x = segm_start, xend = segm_end, # hides lockdown annotation where crosses x-axis
-  #          y = segm_y - 2, yend = segm_y - 2,
-  #          color = clr_background, linewidth = 3, linetype = 1) +
   annotate("segment", 
            x = segm_start, xend = segm_end, 
            y = segm_y, yend = segm_y,
@@ -245,39 +262,61 @@ ggplot(grow_data_tidy,
     limits = c(segm_start, segm_end),
     breaks = c(),
     labels = ''
-  ) + 
-  scale_y_continuous(limits = c(y_start, (n_search + 0.6) * y_step + abs(y_start)), 
+  ) +
+  scale_y_continuous(limits = c(y_start, (n_search + 0.45) * y_step + abs(y_start)),
                      breaks = c(), labels = '') +
-  theme(axis.ticks.length = unit(0, 'inch'), 
-        plot.title = element_markdown(), # allows html tags to format title
+  theme(axis.ticks.length = unit(0, 'inch'),
         legend.position = 'none', # removes legend
         axis.title.y = element_blank(),
         plot.background = element_rect(fill = clr_background, colour = 'white'),
-        plot.margin = unit(c(0, 0, 0, 0), 'inch'),
+        plot.margin = unit(c(0, 0, 0, 0), 'inch')
         ) +
-  
-  # labels
 
+  # labels
+  # annotation: first lockdown
+  annotate("segment",
+         x = rep(x_lockdown, n_search),
+         xend = rep(x_lockdown, n_search),
+         y = rep(seq(2, n_search * y_step, y_step), each = length(x_lockdown)), 
+         yend = rep(seq(y_step - 4, n_search * y_step, y_step), each = length(x_lockdown)),
+         color = clr_grey1, linewidth = 0.2, linetype = 5, alpha = 0.5) + 
+  geom_textbox(
+    data = tibble(
+      x = month_lockdown - 1, 
+      y = (n_search) * y_step - 40,
+      label = paste0('<span style = "color:', clr_grey2, '; font-size:9.1pt;">',
+                     '<b>March 2020</b><br>First UK lockdown sees',
+                     ' spike in gardening searches</span>'),
+    ), 
+    mapping = aes(x = x, y = y, label = label),
+    family = sans_font, 
+    inherit.aes = FALSE,
+    box.colour = NA, fill = NA,     
+    width = unit(1, 'inch'),
+    box.padding = unit(rep(0, 4), 'pt'),
+    hjust = 1, lineheight = 0.95) + 
+  
   # title
   geom_textbox(
     data = tibble(
       x = segm_start,
       y = (n_search + 0.25) * y_step,
       label = paste0(
-        '<span style="font-size:16pt;">',
+        '<span style="font-size:18pt; color:', clr_grey1, ' ; font-family:', serif_font, ';">',
         'Gardening interest surged during the COVID-19 pandemic',
-        '<br>', '</span>',
-        '<span style="font-size:8.5pt; color:', clr_taupe2, ';">',
+        '</span>', '<span style="font-size:45pt;"><br></span>',
+        '<span style="font-size:9.5pt;">',
         'Google searches for how to grow ',
-        '<b style="color:', search_pal[1],';">vegetables</b>, ', 
+        '<b style="color:', search_pal[1],';">vegetables</b>, ',
         '<b style="color:', search_pal[2], ';">flowers</b>, and ',
         '<b style="color:', search_pal[3], ';">food</b> from 2015 to 2022 in the United Kingdom',
         '</span>'
-        )
+      )
     ),
     mapping = aes(x = x, y = y, label = label),
-    colour = clr_grey1,
     inherit.aes = FALSE,
+    family = sans_font,
+    colour = clr_taupe2,
     hjust = 0,
     vjust = 0,
     fill = NA,
@@ -286,48 +325,51 @@ ggplot(grow_data_tidy,
     box.padding = unit(rep(0, 4), 'pt')
   ) +
   xlab('') +
-  
+
   # caption
   geom_textbox(
     data = tibble(
       x = segm_start,
       y = y_start,
       label = paste0(
-        '<span style="font-size:6pt; color:', clr_taupe3, ';">',
-        'Visualisation by <b>Gabrielle M. Schroeder</b> | Data from Google Trends.',
+        '<span style="font-size:8pt; color:', clr_taupe3, ';">',
+        'Visualisation by <b>Gabrielle M. Schroeder</b> | Data from Google Trends',
         '</span>'
       )
     ),
     mapping = aes(x = x, y = y, label = label),
+    family = sans_font,
     inherit.aes = FALSE,
     hjust = 0,
     vjust = 1,
     fill = NA,
     box.colour = NA,
     width = unit(7, 'inch'),
-    box.padding = unit(rep(0, 4), 'pt'),
-    fontface = 'italic'
+    box.padding = unit(rep(0, 4), 'pt')#,
+   # fontface = 'italic'
   ) +
-  
+
   # additional annotations
-  
+
   # seasonal changes
   geom_textbox(
     data = tibble(
-      x = month_lockdown/2 + 4, 
+      x = month_lockdown/2 + 4,
       y = (n_search - 1) * y_step - 40,
-      label = paste0('<span style = "color:', clr_taupe3, '; font-size:8pt;">',
-                     'Both ', 
-                     '<span style="color:', search_pal[1],';">vegetable</span> and ', 
+      label = paste0('<span style = "color:', clr_taupe3, '; font-size:9.1pt;">',
+                     'Both ',
+                     '<span style="color:', search_pal[1],';">vegetable</span> and ',
                      '<span style="color:', search_pal[2], ';">flower</span>',
                      ' searches increase in spring </span>'),
-    ), 
+    ),
     mapping = aes(x = x, y = y, label = label),
+    family = sans_font,
     inherit.aes = FALSE,
-    box.colour = NA, fill = NA,     
+    box.colour = NA, fill = NA,
     width = unit(1.6, 'inch'),
     box.padding = unit(rep(0, 4), 'pt'),
-    hjust = 0.5, lineheight = 0.8) + 
+    hjust = 0.5, lineheight = 0.8
+    ) +
   geom_curve( # arrow for vegetables
     data = tibble(
       x = 19,
@@ -355,53 +397,61 @@ ggplot(grow_data_tidy,
     curvature = -0.35,
     colour = clr_taupe3,
     linewidth = 0.4
-  ) +  
+  ) +
   # food patterns
   geom_textbox(
     data = tibble(
-      x = month_lockdown*1.07, 
+      x = month_lockdown*1.07,
       y = (n_search - 2) * y_step - 40,
-      label = paste0('<span style = "color:', clr_taupe3, '; font-size:8pt;">',
+      label = paste0('<span style = "color:', clr_taupe3, '; font-size:9.1pt;">',
                      ' "How to grow <span style="color:', search_pal[3],';">',
                      'food</span>" ',
-                     'started varying seasonally after the first lockdown', 
+                     'started varying seasonally after the first lockdown',
                      '</span>'),
-      ), 
+      ),
     mapping = aes(x = x, y = y, label = label),
+    family = sans_font,
     inherit.aes = FALSE,
-    box.colour = NA, fill = NA,     
+    box.colour = NA, fill = NA,
     width = unit(1.75, 'inch'),
     box.padding = unit(rep(0, 4), 'pt'),
-    hjust = 0, lineheight = 0.8) + 
-  
+    hjust = 0, lineheight = 0.8
+    ) +
+
   # years
   annotate("text", x = seq(6.5, max_months, by = 12),
            y = -8, label = 2015:2022,
-           color = clr_taupe3, size = 3, vjust = 1) +
-  
+           color = clr_taupe3, size = 3.5, vjust = 1, family = sans_font) +
+
   # mark y axis
-  annotate("text", x = segm_start, y = c(y_step * (n_search) - 7, y_step * (n_search - 1) + 7), 
-           label = c('high interest', 'low interest'), 
-           hjust = 0, fontface = 'italic', size = 2.5,
-           color = clr_taupe3) +
-  
+  annotate("text", x = segm_start, y = c(y_step * (n_search) - 7, y_step * (n_search - 1) + 7),
+           label = c('high interest', 'low interest'),
+           hjust = 0, fontface = 'italic', size = 2.75,
+           color = clr_taupe3, family = sans_font) +
+
   # searches
-  annotate("richtext", x = max_months + 1, 
+  annotate("richtext", x = max_months + 1,
            y = seq(y_step * (n_search - 1) -2, -2, by = -y_step),
-           label = paste0('<span style="font-size:10pt;"> "</span>how to grow',
-                          '<span style="font-size:15pt;"><br></span>', 
-                          '<span style="font-size:10pt;color:', clr_background, ';"> "</span>', # hidden quotes for spacing
-                          '<b style="font-size:15pt;">',
-                          search_terms, 
-                          '</b><span style="font-size:10pt;">"</span>'), 
-           hjust = 0, vjust = 0, color = search_pal, 
-           fill = NA, label.color = NA, size = 3) + 
-  
+           label = paste0('<span style="font-size:11pt;"> "</span>how to grow',
+                          '<span style="font-size:20pt;"><br></span>',
+                          '<span style="font-size:11pt;color:', clr_background, ';"> "</span>', # hidden quotes for spacing
+                          '<b style="font-size:17pt; font-family:', serif_font, ';">',
+                          search_terms,
+                          '</b><span style="font-size:11pt;">"</span>'),
+           hjust = 0, vjust = 0, color = search_pal,
+           fill = NA, label.color = NA, size = 3, family = sans_font) +
+
   # set aspect ratio
   coord_fixed(ratio = 0.2)
 
+# save 
+fig_file <- file.path('plots','R_gardening_COVID.png')
+
+ggsave(fig_file, width = 7, height = 5, units = "in", dpi = 600)
 ################################################################################
 # y-axis = month, with each search a different subplot ----
+
+#if (length(dev.list()) > 0) {dev.off()}
 
 # re-order and add a different colours for pre-COVID years
 search_pal <- c('#9C4AA3', '#2690A6', '#A3C429')
