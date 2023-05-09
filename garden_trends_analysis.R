@@ -191,9 +191,9 @@ register_font(
 sans_font <- 'aleg_sans_lining'
 register_font(
   name = sans_font,
-  plain = '/Users/gmschroe/Library/Fonts/AlegreyaSans-Regular.ttf',
+  plain = '/Users/gmschroe/Library/Fonts/AlegreyaSans-Medium.ttf',
   bold = '/Users/gmschroe/Library/Fonts/AlegreyaSans-Bold.ttf',
-  italic = '/Users/gmschroe/Library/Fonts/AlegreyaSans-Italic.ttf',
+  italic = '/Users/gmschroe/Library/Fonts/AlegreyaSans-MediumItalic.ttf',
   features = font_feature(numbers = "lining")
 )
 
@@ -208,10 +208,11 @@ clr_grey1 <- '#1b160f'
 clr_grey2 <- '#404336'
 clr_grey3 <- '#5e5d5b'
   
-clr_taupe2 <-'#7A766D'
-clr_taupe3 <- '#8C877D'
+clr_taupe2 <- "#636059"
+clr_taupe3 <- '#7A766D'
+clr_taupe3b <- '#8C877D'
 clr_taupe4 <- '#a9a397'
-clr_taupe5 <- '#c0bba8'
+  
 clr_pink <- '#b5395d'
 clr_orange <-'#b65c15'
 clr_green1 <- '#133017'
@@ -238,7 +239,6 @@ ggplot(grow_data_tidy,
   scale_colour_manual(values = search_pal) + 
   
   # theme changes - remove grid lines, border, axis lines, background
-  # set axis text colour
   theme(
     panel.grid = element_blank(),
     panel.border = element_blank(),
