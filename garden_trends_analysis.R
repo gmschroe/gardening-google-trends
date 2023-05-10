@@ -191,7 +191,7 @@ register_font(
 sans_font <- 'aleg_sans_lining'
 register_font(
   name = sans_font,
-  plain = '/Users/gmschroe/Library/Fonts/AlegreyaSans-Medium.ttf',
+  plain = '/Users/gmschroe/Library/Fonts/AlegreyaSans-Regular.ttf',
   bold = '/Users/gmschroe/Library/Fonts/AlegreyaSans-Bold.ttf',
   italic = '/Users/gmschroe/Library/Fonts/AlegreyaSans-MediumItalic.ttf',
   features = font_feature(numbers = "lining")
@@ -305,7 +305,7 @@ ggplot(grow_data_tidy,
         '<span style="font-size:18pt; color:', clr_grey1, ' ; font-family:', serif_font, ';">',
         'Gardening interest surged during the COVID-19 pandemic',
         '</span>', '<span style="font-size:45pt;"><br></span>',
-        '<span style="font-size:9.5pt;">',
+        '<span style="font-size:10pt;">',
         'Google searches for how to grow ',
         '<b style="color:', search_pal[1],';">vegetables</b>, ',
         '<b style="color:', search_pal[2], ';">flowers</b>, and ',
