@@ -7,7 +7,7 @@ With the weather warming up in Newcastle upon Tyne, I’ve been spending more ti
 
 Using Google Trends data, I began investigating garden searches in the UK, focusing on “how to garden” to capture interest in hobby gardening. I soon found that the expected seasonal changes weren’t the most interesting pattern in recent years: 
 
-<a href = "https://www.datawrapper.de/_/V90Wd/"><img src="plots/how_to_garden_dw_vis.png" width="700" alt="A line graph showing how interest in gardening, as captured by Google searches for how to garden, changed each month in the UK. Each year, gardening interest is higher in spring and summer than in autumn and winter. In 2020, after the March 2020 COVID lockdown, the seasonal interest is about double that of the previous years.">
+<a href = "https://www.datawrapper.de/_/V90Wd/"><img src="plots/how_to_garden_dw_vis.png" width="700" alt="A line graph showing how interest in gardening, as captured by Google searches for 'how to garden,' changed each month in the UK. Each year, gardening interest is higher in spring and summer than in autumn and winter. In 2020, after the March 2020 COVID lockdown, the seasonal interest is about double that of the previous years.">
 
 *Click on the chart for an interactive version*
 
@@ -19,7 +19,9 @@ I can think of two main reasons for the increased gardening interest:
   
 To better understand what drove the gardening Google searches, I investigated two more specific search terms: "how to grow vegetables" and "how to grow flowers."
   
- 
+ <a href = "https://www.datawrapper.de/_/QCtih/"><img src="plots/how_to_grow_dw_vis.png" width="700" alt="Line graph showing how Google searches for 'how to grow vegetables' and 'how to grow flowers' changed during 2020, the first year of UK COVID lockdowns. The minimum and maximum search interest is shown for 2015 to 2019 for each search term for comparison.  For both 2020 and the pre-lockdown years, searches are higher during the spring and summer, but this seasonal interest is about twice as high during 2020. ">
+  
+Both of these searches also dramatically increased during 2020. Although some flowers are [edible](https://www.gardenersworld.com/how-to/grow-plants/how-to-grow-nasturtiums/) or [good companion plants](https://www.gardenersworld.com/plants/10-companion-plants-to-grow/), we can probably assume that flower searches were mostly hobby-motivated. Growing vegetables can also primarily be a hobby, but, interestingly, vegetable searches increased both sooner and more than flower searches, suggesting that some interest may have been driven by initial lockdown fears or food order frustrations.
 
 ## Stand-alone R visualisation
 
