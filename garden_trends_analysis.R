@@ -1,3 +1,7 @@
+# Wrangling garden searches data for R (tidyverse) and Datawrapper
+# Initial visualisations of garden searches
+# Finalised visualisation 
+
 # libraries -----
 #if (length(dev.list()) > 0) {dev.off()}
 rm(list = ls())
@@ -71,6 +75,7 @@ show(garden_data_dw)
 
 write_csv(garden_data_dw,file.path('data','garden_data_dw.csv'))
 
+################################################################################
 # ------ Grow vegetables/flowers/food trends ----
 
 # load and tidy data
@@ -147,7 +152,40 @@ ggplot(grow_data_tidy,
     ) +
   xlab('')
 
-# main visualisation!  ----
+# grow data for Datawrapper ----
+
+# compute min and max of pre covid years
+grow_data_sum <- grow_data |>
+  select(-c(months_elapsed, covid)) |>
+  filter(year < 2020) |> # years before covid (2015 - 2019)
+  group_by(month) |>
+  summarise(across(-year, list(min = min, max = max)))
+
+show(grow_data_sum)
+
+# 2020 data
+grow_data_covid <- grow_data |>
+  select(-c(months_elapsed, covid)) |>
+  filter(year == 2020) |>
+  select(-c(year, month))
+
+colnames(grow_data_covid) <- paste(
+  colnames(grow_data_covid), 
+  '2020', 
+  sep = '_'
+) 
+
+show(grow_data_covid)
+  
+# bind
+grow_data_dw <- cbind(grow_data_sum, grow_data_covid)
+
+View(grow_data_dw)
+
+write_csv(grow_data_dw,file.path('data','grow_data_dw.csv'))
+
+################################################################################
+# main R visualisation!  ----
 # plot interest (grow vegetables,  grow flowers, and grow food) vs time
 # finalised labelled and annotated plot
 
@@ -448,6 +486,7 @@ ggplot(grow_data_tidy,
 fig_file <- file.path('plots','R_gardening_COVID.png')
 
 ggsave(fig_file, width = 7, height = 5, units = "in", dpi = 600)
+
 ################################################################################
 # y-axis = month, with each search a different subplot ----
 
@@ -478,5 +517,3 @@ ggplot(
   facet_grid(cols = vars(search)) +
   theme(legend.position = 'none')
 
-# compare peak interest each year vs time
-# compare range in interest each year vs time
